@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-jp);
+  --font-display: var(--font-display);
+
+  /* 洗練・ミニマル：白基調 + 抑えたアクセント */
+  --color-paper: #faf8f3; /* ページ背景（温かみのある白） */
+  --color-cream: #ffffff; /* カード面 */
+  --color-paper-2: #f1ece1; /* ごく薄いフィル */
+  --color-ink: #2a2521; /* ほぼ黒（温かみ） */
+  --color-ink-soft: #6f685d; /* 補助文字：可読性を保ったウォームグレー */
+  --color-line: #e1d9ca; /* ヘアライン */
+  --color-basil: #3f5135; /* 主アクセント（深い森の緑） */
+  --color-basil-deep: #2f3d27;
+  --color-pomodoro: #9c4226; /* 稀のアクセント／低スコア */
+  --color-pomodoro-deep: #7d3320;
+  --color-olive: #b3902f; /* 二次・ホバー（くすんだ金） */
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  min-height: 100%;
+  overflow-x: clip;
+}
+
+body {
+  font-family: var(--font-jp), system-ui, sans-serif;
+  color: var(--color-ink);
+  background-color: #faf8f3;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.01em;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-feature-settings: "ss01";
+  letter-spacing: 0;
+}
+
+/* 控えめなアクセント罫（旧 tricolore 置き換え：細いグリーンの線） */
+.tricolore {
+  background: linear-gradient(
+    90deg,
+    var(--color-basil),
+    var(--color-basil) 60%,
+    transparent
+  );
+}
+
+/* 内部スクロール時の控えめなバー */
+.soft-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+.soft-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.soft-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 999px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade {
+  animation: fade 0.6s ease both;
+}
+
+/* 採点後の選択肢カード：表面から点数面へ回転 */
+.order-card-flip {
+  perspective: 1200px;
+}
+
+.order-card-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.order-card-flip[data-flipped="true"] .order-card-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.order-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.order-card-back {
+  transform: rotateY(180deg);
+}
+
+.choice-flip {
+  perspective: 900px;
+}
+
+.choice-flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.choice-flip[data-flipped="true"] .choice-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.choice-flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.choice-flip-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-pomodoro);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .choice-flip-inner,
+  .order-card-flip-inner {
+    transition: none !important;
+  }
+}

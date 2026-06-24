@@ -1,0 +1,4 @@
+interface:
+  display_name: "トラットリア問題設計"
+  short_description: "接客文脈を保ち、根拠ある4択問題を設計・改善します"
+  default_prompt: "Use $design-trattoria-questions to create or revise a fair, realistic customer-order question."
