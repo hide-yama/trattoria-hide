@@ -9,7 +9,6 @@ export const metadata: Metadata = {
 };
 
 const NEXT_QUESTIONS = [
-  "バルベーラは品種名？ ワイン名？",
   "酸とタンニンは何が違う？",
   "キャンティとキャンティ・クラシコは同じ？",
   "同じ品種でも味が変わるのはなぜ？",
@@ -42,7 +41,7 @@ export default function ReadingRoomPage() {
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="font-display text-xs italic tracking-[0.14em] text-pomodoro">Caso 01</p>
-            <h2 className="mt-1 text-xl font-bold text-ink">最初の注文</h2>
+            <h2 className="mt-1 text-xl font-bold text-ink">注文ケース</h2>
           </div>
           <span className="text-xs text-ink-soft">読了目安 8分</span>
         </div>
@@ -80,13 +79,32 @@ export default function ReadingRoomPage() {
           </div>
         </Link>
 
+        <Link
+          href="/reading/barbera-grape-or-wine"
+          className="group mt-5 grid overflow-hidden rounded-[1.6rem] border border-line bg-cream shadow-[0_18px_52px_-42px_rgba(43,33,24,0.75)] transition duration-300 hover:-translate-y-1 hover:border-olive/70 sm:grid-cols-[1fr_14rem]"
+        >
+          <div className="flex flex-col p-6 sm:p-7">
+            <div className="flex items-center gap-3">
+              <span className="font-display text-xs italic text-pomodoro">Caso 02</span>
+              <span className="rounded-full bg-paper-2 px-2.5 py-1 text-[10px] font-bold text-basil">名前を読み解く</span>
+            </div>
+            <h3 className="mt-4 text-xl font-bold leading-8 text-ink">「バルベーラをください」と言われたら、何を確認する？</h3>
+            <p className="mt-3 text-sm leading-7 text-ink-soft">品種が分かっても一本は決まらない。呼称、造り方、料理から「同じようなもの」を具体化します。</p>
+            <span className="mt-5 flex items-center gap-2 text-xs font-bold text-pomodoro">続きを読む<Icon name="arrow-right" className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
+          </div>
+          <div className="relative min-h-52 sm:min-h-full">
+            <Image src="/images/stages/intermediate.webp" alt="赤ワインとテイスティングノート" fill sizes="(max-width: 640px) 100vw, 224px" className="object-cover object-right" />
+            <div className="absolute inset-0 bg-gradient-to-r from-cream/75 via-transparent to-transparent" />
+          </div>
+        </Link>
+
         <div className="mt-14 border-t border-ink/10 pt-10">
           <p className="font-display text-xs italic tracking-[0.14em] text-pomodoro">Domande successive</p>
           <h2 className="mt-1 text-xl font-bold text-ink">この注文から、次の疑問へ</h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {NEXT_QUESTIONS.map((question, index) => (
               <div key={question} className="rounded-2xl border border-dashed border-line bg-cream/45 p-5">
-                <span className="font-display text-xs text-pomodoro">{String(index + 2).padStart(2, "0")}</span>
+                <span className="font-display text-xs text-pomodoro">{String(index + 3).padStart(2, "0")}</span>
                 <p className="mt-2 text-sm font-bold leading-6 text-ink">{question}</p>
                 <span className="mt-3 block text-[10px] tracking-wide text-ink-soft">準備中</span>
               </div>

@@ -175,7 +175,10 @@ export default function ArticlePage() {
             <p>
               答えは「品種名」です。ただし、バルベーラ・ダスティのように呼称の一部にも現れます。ここから、イタリアワインで品種名・地名・呼称がどうラベルに現れるのか、次の疑問が始まります。
             </p>
-            <span className="mt-5 inline-block rounded-full bg-paper-2 px-3 py-1.5 text-[10px] font-bold text-ink-soft">次の記事を準備中</span>
+            <Link href="/reading/barbera-grape-or-wine" className="mt-5 inline-flex items-center gap-2 rounded-full bg-basil px-4 py-2.5 text-xs font-bold text-cream transition hover:bg-pomodoro">
+              次の記事へ
+              <Icon name="arrow-right" className="h-4 w-4" />
+            </Link>
           </section>
 
           <footer className="mt-14 border-t border-ink/10 pt-8">
