@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Trattoria Hide</title>
+  <rect width="512" height="512" rx="124" fill="#3f5135"/>
+  <circle cx="256" cy="256" r="174" fill="#faf8f3"/>
+  <circle cx="256" cy="256" r="160" fill="#3f5135"/>
+  <path d="M168 151c0-11 9-20 20-20h17v104h102V131h17c11 0 20 9 20 20v210c0 11-9 20-20 20h-17V274H205v107h-17c-11 0-20-9-20-20V151Z" fill="#faf8f3"/>
+  <circle cx="361" cy="137" r="27" fill="#9c4226"/>
+</svg>
