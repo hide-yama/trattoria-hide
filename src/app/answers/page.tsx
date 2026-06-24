@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { ORDERS } from "@/data/orders";
-import { ANSWER_TYPE_LABEL } from "@/lib/types";
+import { ANSWER_TYPE_LABEL, LEARNING_FOCUS_LABEL } from "@/lib/types";
 import { googleImageSearchUrl } from "@/lib/image-search";
 
 const GROUPS = [
@@ -61,6 +61,9 @@ export default function AnswersPage() {
                     <li key={order.id} className="grid gap-4 py-6 sm:grid-cols-[2.5rem_1fr]">
                       <span className="font-display text-sm text-pomodoro">{String(orderIndex + 1).padStart(2, "0")}</span>
                       <div>
+                        <p className="mb-2 text-[10px] font-bold tracking-[0.1em] text-pomodoro">
+                          {LEARNING_FOCUS_LABEL[order.learningFocus]}
+                        </p>
                         <p className="text-sm leading-7 text-ink">{order.orderText}</p>
                         <dl className="mt-3 space-y-2 border-l-2 border-basil/25 pl-4">
                           {order.slots.map((slot) => {
@@ -84,6 +87,13 @@ export default function AnswersPage() {
                             );
                           })}
                         </dl>
+                        {order.knowledge && (
+                          <p className="mt-3 text-[11px] leading-5 text-ink-soft">
+                            {[order.knowledge.region, order.knowledge.denomination, order.knowledge.grapes?.join("・")]
+                              .filter(Boolean)
+                              .join(" ／ ")}
+                          </p>
+                        )}
                       </div>
                     </li>
                   ))}

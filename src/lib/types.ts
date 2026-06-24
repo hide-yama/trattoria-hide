@@ -5,6 +5,34 @@
 /** 難易度 */
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 
+export type LearningFocus =
+  | "dish_style"
+  | "beverage_role"
+  | "wine_denomination"
+  | "grape_and_region"
+  | "pairing"
+  | "area_food_culture"
+  | "region_and_dish";
+
+export const LEARNING_FOCUS_LABEL: Record<LearningFocus, string> = {
+  dish_style: "料理様式と調理法",
+  beverage_role: "飲み物の種類と役割",
+  wine_denomination: "ワインの呼称と主要品種",
+  grape_and_region: "ブドウ品種と州・産地",
+  pairing: "料理と飲み物の組み合わせ",
+  area_food_culture: "エリアと食文化",
+  region_and_dish: "州と郷土料理",
+};
+
+export interface KnowledgeProfile {
+  category?: string;
+  region?: string;
+  denomination?: string;
+  grapes?: string[];
+  style?: string[];
+  role?: string;
+}
+
 /** 回答項目の種類。1問は1つ以上のスロットを持つ（初級=1, 中級=2〜3）。 */
 export type AnswerType =
   | "area" // エリア（北/中/南/島）
@@ -51,6 +79,10 @@ export interface Order {
   difficulty: Difficulty;
   /** 切り口別ステージ用の分類タグ（例: "pizza_style", "pairing"） */
   stageType: string;
+  /** この問題で意識して身につける知識。 */
+  learningFocus: LearningFocus;
+  /** 解説で項目別に示す知識。主に飲み物問題で使用する。 */
+  knowledge?: KnowledgeProfile;
   /** お客さんアイコンの暫定表現（絵文字）。後で画像に差し替え。 */
   customerEmoji: string;
   /** お客さんの注文セリフ（特徴ベース） */

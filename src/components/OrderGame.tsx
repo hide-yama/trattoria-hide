@@ -12,7 +12,12 @@ import {
   type Selection,
   type Verdict,
 } from "@/lib/scoring";
-import { ANSWER_TYPE_LABEL, type Order } from "@/lib/types";
+import {
+  ANSWER_TYPE_LABEL,
+  LEARNING_FOCUS_LABEL,
+  type KnowledgeProfile,
+  type Order,
+} from "@/lib/types";
 
 const DIFFICULTY_LABEL: Record<Order["difficulty"], string> = {
   beginner: "初級",
@@ -346,6 +351,10 @@ export default function OrderGame({
               </div>
 
               <div className="flex h-[calc(100%-9rem)] flex-col p-6 sm:h-[calc(100%-11rem)] sm:p-7">
+                <div className="mb-4 flex items-center gap-2 text-[10px] font-bold tracking-[0.1em] text-basil">
+                  <span className="h-px w-5 bg-basil/45" />
+                  今回身につける知識：{LEARNING_FOCUS_LABEL[order.learningFocus]}
+                </div>
                 <div className="flex gap-4">
                   <span className="font-display text-5xl leading-[0.7] text-pomodoro/55">
                     “
@@ -430,6 +439,10 @@ export default function OrderGame({
                       {inspectedChoice.feedback}
                     </p>
 
+                    {order.knowledge && (
+                      <KnowledgeFacts profile={order.knowledge} />
+                    )}
+
                     <a
                       href={googleImageSearchUrl(inspectedChoice.label)}
                       target="_blank"
@@ -441,7 +454,7 @@ export default function OrderGame({
                       <Icon name="arrow-right" className="h-3.5 w-3.5 -rotate-45" />
                     </a>
 
-                    {inspectedChoice.score < inspectedBest.score && (
+                    {!order.knowledge && inspectedChoice.score < inspectedBest.score && (
                       <button
                         type="button"
                         tabIndex={!showOrderFace ? 0 : -1}
@@ -461,7 +474,7 @@ export default function OrderGame({
                     )}
 
                     <div className="mt-auto border-t border-line pt-4">
-                      <p className="line-clamp-2 text-[11px] leading-5 text-ink-soft">
+                      <p className={`${order.knowledge ? "line-clamp-1" : "line-clamp-2"} text-[11px] leading-5 text-ink-soft`}>
                         {order.explanation}
                       </p>
                       <button
@@ -661,5 +674,27 @@ function TopBar({
         </span>
       </div>
     </header>
+  );
+}
+
+function KnowledgeFacts({ profile }: { profile: KnowledgeProfile }) {
+  const rows = [
+    ["種類", profile.category],
+    ["州・産地", profile.region],
+    ["呼称", profile.denomination],
+    ["主要品種", profile.grapes?.join("・")],
+    ["役割", profile.role],
+    ["特徴", profile.style?.join("・")],
+  ].filter((row): row is [string, string] => Boolean(row[1]));
+
+  return (
+    <dl className="mt-3 grid grid-cols-[4.2rem_1fr] gap-x-3 gap-y-1 rounded-xl bg-paper px-4 py-2.5 text-[10px] leading-4">
+      {rows.map(([label, value]) => (
+        <div key={label} className="contents">
+          <dt className="font-bold text-ink-soft">{label}</dt>
+          <dd className="font-semibold text-ink">{value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }

@@ -2,14 +2,27 @@
 // お客様は「欲しい体験」を語り、プレイヤーは料理・飲み物・土地の知識から提案する。
 // 各選択肢は部分的な妥当性を持ち、最適な提案だけが希望全体を満たす。
 
-import type { Order } from "@/lib/types";
+import type { LearningFocus, Order } from "@/lib/types";
 
 type CompactChoice = readonly [label: string, score: number, feedback: string];
+
+const DRINK_KNOWLEDGE: Record<string, { focus: LearningFocus; profile: NonNullable<Order["knowledge"]> }> = {
+  order_019: { focus: "beverage_role", profile: { category: "カクテル", denomination: "アペロール・スプリッツ", style: ["穏やかな苦味", "柑橘", "微発泡"], role: "食前酒" } },
+  order_020: { focus: "beverage_role", profile: { category: "カクテル", denomination: "ネグローニ", style: ["薬草の苦味", "高めの度数", "非発泡"], role: "食前酒" } },
+  order_021: { focus: "grape_and_region", profile: { category: "赤ワイン", region: "ピエモンテ州", denomination: "バルベーラ・ダスティ", grapes: ["バルベーラ"], style: ["高い酸", "控えめなタンニン", "赤い果実"], role: "食中酒" } },
+  order_022: { focus: "grape_and_region", profile: { category: "白ワイン", region: "マルケ州", denomination: "ヴェルディッキオ・デイ・カステッリ・ディ・イエージ", grapes: ["ヴェルディッキオ"], style: ["高い酸", "塩味を思わせる輪郭", "ほろ苦い余韻"], role: "食中酒" } },
+  order_023: { focus: "wine_denomination", profile: { category: "赤ワイン", region: "トスカーナ州", denomination: "キャンティ・クラシコ", grapes: ["サンジョヴェーゼ主体"], style: ["高い酸", "赤い果実", "中程度のタンニン"], role: "食中酒" } },
+  order_024: { focus: "beverage_role", profile: { category: "薬草系リキュール", denomination: "アマーロ", style: ["薬草香", "甘苦い余韻"], role: "食後酒" } },
+  order_025: { focus: "beverage_role", profile: { category: "蒸留酒", denomination: "グラッパ・ビアンカ", style: ["非樽熟成", "高い度数", "ブドウ由来の香り"], role: "食後酒" } },
+  order_026: { focus: "wine_denomination", profile: { category: "甘口微発泡ワイン", region: "ピエモンテ州", denomination: "モスカート・ダスティ", grapes: ["モスカート・ビアンコ"], style: ["甘口", "低めの度数", "花と熟した果実"], role: "デザートワイン" } },
+};
 
 function singleOrder(config: {
   id: string;
   difficulty: Order["difficulty"];
   stageType: string;
+  learningFocus?: LearningFocus;
+  knowledge?: Order["knowledge"];
   orderText: string;
   answerType: Order["slots"][number]["answerType"];
   prompt: string;
@@ -17,10 +30,20 @@ function singleOrder(config: {
   explanation: string;
   tags: string[];
 }): Order {
+  const focusByStage: Record<string, LearningFocus> = {
+    dish_style: "dish_style",
+    drink: "beverage_role",
+    pairing: "pairing",
+    area: "area_food_culture",
+    region: "region_and_dish",
+  };
+  const drinkKnowledge = DRINK_KNOWLEDGE[config.id];
   return {
     id: config.id,
     difficulty: config.difficulty,
     stageType: config.stageType,
+    learningFocus: config.learningFocus ?? drinkKnowledge?.focus ?? focusByStage[config.stageType] ?? "dish_style",
+    knowledge: config.knowledge ?? drinkKnowledge?.profile,
     customerEmoji: "",
     orderText: config.orderText,
     tags: config.tags,
@@ -44,6 +67,7 @@ export const ORDERS: Order[] = [
     id: "order_001",
     difficulty: "beginner",
     stageType: "dish_style",
+    learningFocus: "dish_style",
     customerEmoji: "🧑‍🦱",
     orderText:
       "具をたくさん重ねるより、生地のおいしさを楽しみたいです。縁はふっくら、中心はやわらかくて、焼きたてを手で折れるくらいの一枚がいいですね。",
@@ -93,6 +117,8 @@ export const ORDERS: Order[] = [
     id: "order_002",
     difficulty: "beginner",
     stageType: "drink",
+    learningFocus: "wine_denomination",
+    knowledge: { category: "スパークリングワイン", region: "ヴェネト州・フリウリ＝ヴェネツィア・ジュリア州", denomination: "プロセッコ", grapes: ["グレーラ"], style: ["辛口", "軽快な泡", "フレッシュな果実味"], role: "食前酒" },
     customerEmoji: "👩",
     orderText:
       "食事の始まりに、口がさっぱりする泡を一杯だけ飲みたいです。甘さは控えめで、あまり構えず気軽に楽しめるものがいいです。",
@@ -142,6 +168,7 @@ export const ORDERS: Order[] = [
     id: "order_003",
     difficulty: "intermediate",
     stageType: "pairing",
+    learningFocus: "pairing",
     customerEmoji: "🧔",
     orderText:
       "今日は厚みのある赤身肉をしっかり食べたいです。炭火の香りがあって、中は火を通しすぎないものを。ワインは脂を受け止める酸と渋みがほしいです。",
@@ -225,6 +252,7 @@ export const ORDERS: Order[] = [
     id: "order_004",
     difficulty: "beginner",
     stageType: "area",
+    learningFocus: "area_food_culture",
     customerEmoji: "🧑",
     orderText:
       "寒い日にほっとできる米料理がいいです。バターやチーズの丸いコクがあって、温かいものをスプーンでゆっくり食べたいです。",
@@ -274,6 +302,8 @@ export const ORDERS: Order[] = [
     id: "order_005",
     difficulty: "beginner",
     stageType: "drink",
+    learningFocus: "beverage_role",
+    knowledge: { category: "コーヒー", denomination: "エスプレッソ", style: ["凝縮した香り", "明確な苦味", "少量"], role: "食後の締め" },
     customerEmoji: "👨‍🦳",
     orderText:
       "甘いお菓子を食べたあと、長く飲むものではなく、香りが強くて少量の一杯で締めたいです。口の中がきりっとする苦味があるとうれしいです。",
@@ -323,6 +353,7 @@ export const ORDERS: Order[] = [
     id: "order_006",
     difficulty: "beginner",
     stageType: "dish_style",
+    learningFocus: "dish_style",
     customerEmoji: "🧓",
     orderText:
       "米を使った温かい料理が食べたいです。おかゆのように柔らかすぎず、一粒ずつの食感が残っていて、だしの旨味が全体にまとまったものがいいです。",
@@ -372,6 +403,7 @@ export const ORDERS: Order[] = [
     id: "order_007",
     difficulty: "intermediate",
     stageType: "region",
+    learningFocus: "region_and_dish",
     customerEmoji: "👩‍🦰",
     orderText:
       "トマトやクリームが前に出るものではなく、香りのいいハーブを使った軽めのパスタが食べたいです。少し香ばしいコクもあるとうれしいです。",
@@ -421,6 +453,7 @@ export const ORDERS: Order[] = [
     id: "order_008",
     difficulty: "intermediate",
     stageType: "pairing",
+    learningFocus: "pairing",
     customerEmoji: "🧑‍🍳",
     orderText:
       "前菜からパスタまで、熟成した豚肉や硬いチーズの旨味をしっかり楽しみたいです。詰め物をしたパスタも気になります。飲み物は脂を重く感じさせない、気取らない一杯をお願いします。",
@@ -504,6 +537,7 @@ export const ORDERS: Order[] = [
     id: "order_009",
     difficulty: "beginner",
     stageType: "region",
+    learningFocus: "region_and_dish",
     customerEmoji: "🧕",
     orderText:
       "肉ではなく、野菜を中心にした前菜から始めたいです。酸味はほしいけれど尖りすぎず、少し甘みもあって、冷めてもおいしいものがいいです。",
@@ -553,6 +587,7 @@ export const ORDERS: Order[] = [
     id: "order_010",
     difficulty: "intermediate",
     stageType: "pairing",
+    learningFocus: "pairing",
     customerEmoji: "🧑‍🦳",
     orderText:
       "魚介の旨味を米に吸わせた温かい料理が食べたいです。揚げ物やトマト煮込みではなく、なめらかさの中に米の粒を感じるものを。白ワインは香りが派手すぎず、塩味に寄り添う辛口がいいです。",
@@ -844,4 +879,34 @@ export const ORDERS: Order[] = [
   singleOrder({id:"order_050",difficulty:"beginner",stageType:"region",answerType:"region",orderText:"豆と葉野菜をたっぷり使った、とろりと温かいスープがほしいです。古いパンも無駄なく使う、素朴な味がいいです。",prompt:"家庭料理の背景まで案内するなら？",tags:["toscana","ribollita"],choices:[
     ["トスカーナ州のリボッリータ",100,"豆、葉野菜、古いパンを煮返して一体にする素朴な料理です。"],["リグーリア州のミネストローネ・ジェノヴェーゼ",72,"豆と野菜は合いますが、ペストの香りが個性になります。"],["カンパニア州のパスタ・エ・ファジョーリ",64,"豆のとろみは近いものの、パンではなくパスタを使います。"],["ヴァッレ・ダオスタ州のスープ・アッラ・ヴァルペッリネンツェ",50,"パンを使う温かな料理でも、チーズと肉汁が主役です。"],
   ],explanation:"倹約から生まれた古いパンの再利用と、豆・野菜の組み合わせがトスカーナのリボッリータを特徴づけます。"}),
+  singleOrder({id:"order_051",difficulty:"beginner",stageType:"drink",learningFocus:"wine_denomination",knowledge:{category:"赤ワイン",region:"トスカーナ州",denomination:"キャンティ・クラシコ",grapes:["サンジョヴェーゼ主体"],style:["高い酸","赤い果実","中程度のタンニン"],role:"食中酒"},answerType:"drink",orderText:"トマトを使った肉料理に、酸味があって食事を重くしない赤を合わせたいです。熟した甘さより、赤い果実とほどよい渋みを感じるものを。",prompt:"呼称と主要品種まで含めて提案するなら？",tags:["toscana","chianti_classico","sangiovese"],choices:[
+    ["キャンティ・クラシコ／サンジョヴェーゼ主体／トスカーナ州",100,"呼称、主要品種、州が正しくつながり、酸がトマト料理にも合います。"],["バローロ／ネッビオーロ／ピエモンテ州",72,"酸と渋みは合いますが、骨格と熟成香が希望より重厚です。"],["ヴァルポリチェッラ／コルヴィーナ主体／ヴェネト州",78,"軽快な赤ですが、酸とサンジョヴェーゼらしい輪郭とは異なります。"],["プリミティーヴォ・ディ・マンドゥーリア／プリミティーヴォ／プーリア州",45,"熟した果実と高い度数が前に出やすく、希望と逆方向です。"],
+  ],explanation:"キャンティ・クラシコは品種名ではなくトスカーナの呼称で、サンジョヴェーゼを主体とする赤ワインです。"}),
+  singleOrder({id:"order_052",difficulty:"intermediate",stageType:"drink",learningFocus:"wine_denomination",knowledge:{category:"赤ワイン",region:"ピエモンテ州",denomination:"バローロ",grapes:["ネッビオーロ"],style:["高い酸","強いタンニン","長い熟成力"],role:"肉料理の食中酒"},answerType:"drink",orderText:"長く煮込んだ牛肉に、若いうちは硬さがあっても、香りが複雑で長く熟成できる赤を合わせたいです。色の濃さより酸と渋みを重視します。",prompt:"呼称・品種・州を一つの提案にするなら？",tags:["piemonte","barolo","nebbiolo"],choices:[
+    ["バローロ／ネッビオーロ／ピエモンテ州",100,"高い酸、強いタンニン、熟成力が煮込みと希望に合います。"],["キャンティ・クラシコ／サンジョヴェーゼ主体／トスカーナ州",78,"酸と渋みは合いますが、求める熟成の厳格さでは次点です。"],["アマローネ／コルヴィーナ主体／ヴェネト州",68,"熟成力はあっても、乾燥ブドウ由来の厚みと高い度数が前に出ます。"],["ネロ・ダーヴォラ・シチリア／ネロ・ダーヴォラ／シチリア州",52,"肉には合いますが、より熟した果実味が中心です。"],
+  ],explanation:"バローロは呼称、ネッビオーロは品種、ピエモンテは州です。三者を分けて覚えます。"}),
+  singleOrder({id:"order_053",difficulty:"beginner",stageType:"drink",learningFocus:"grape_and_region",knowledge:{category:"赤ワイン",region:"ヴェネト州",denomination:"ヴァルポリチェッラ",grapes:["コルヴィーナ","コルヴィノーネ","ロンディネッラ"],style:["赤い果実","軽快から中程度の骨格","生き生きした酸"],role:"食中酒"},answerType:"drink",orderText:"鶏肉や軽い煮込みに、重すぎない赤を。赤い果実の香りと酸があり、強い渋みで料理を覆わないものがいいです。",prompt:"州と主要品種の組み合わせまで案内するなら？",tags:["veneto","valpolicella","corvina"],choices:[
+    ["ヴァルポリチェッラ／コルヴィーナなど／ヴェネト州",100,"赤い果実、酸、穏やかなタンニンが軽い肉料理に合います。"],["バローロ／ネッビオーロ／ピエモンテ州",55,"酸は合っても、タンニンと骨格が強すぎます。"],["モンテプルチアーノ・ダブルッツォ／モンテプルチアーノ／アブルッツォ州",72,"果実味は合いますが、より色と厚みが出ます。"],["キャンティ・クラシコ／サンジョヴェーゼ主体／トスカーナ州",82,"有力ですが、渋みを抑えた軽快さではヴァルポリチェッラが上です。"],
+  ],explanation:"ヴァルポリチェッラはヴェネトの呼称で、コルヴィーナ、コルヴィノーネ、ロンディネッラなどの地場品種から造られます。"}),
+  singleOrder({id:"order_054",difficulty:"beginner",stageType:"drink",learningFocus:"wine_denomination",knowledge:{category:"白ワイン",region:"ヴェネト州",denomination:"ソアーヴェ",grapes:["ガルガーネガ主体"],style:["穏やかな花と果実","生き生きした酸","ほろ苦い余韻"],role:"前菜・魚料理の食中酒"},answerType:"drink",orderText:"白身魚に、香りが派手すぎない辛口白を合わせたいです。酸はありつつ、最後に少しアーモンドのようなほろ苦さが残るものを。",prompt:"呼称と主要品種を分けて案内するなら？",tags:["veneto","soave","garganega"],choices:[
+    ["ソアーヴェ／ガルガーネガ主体／ヴェネト州",100,"穏やかな香りとほろ苦い余韻が魚を邪魔しません。"],["ガヴィ／コルテーゼ／ピエモンテ州",84,"繊細な魚に合いますが、より柑橘と直線的な酸が中心です。"],["ヴェルディッキオ／ヴェルディッキオ／マルケ州",88,"ほろ苦さもあり有力ですが、今回は香りの穏やかさでソアーヴェが自然です。"],["ゲヴュルツトラミネール／同名品種／トレンティーノ＝アルト・アディジェ州",42,"華やかな香りが希望より強く出ます。"],
+  ],explanation:"ソアーヴェは呼称で、ガルガーネガが主要品種です。品種名とワイン名を同一視しないことが学習点です。"}),
+  singleOrder({id:"order_055",difficulty:"intermediate",stageType:"drink",learningFocus:"grape_and_region",knowledge:{category:"白ワイン",region:"マルケ州",denomination:"ヴェルディッキオ・デイ・カステッリ・ディ・イエージ",grapes:["ヴェルディッキオ"],style:["高い酸","塩味を思わせる輪郭","アーモンドのような余韻"],role:"魚介料理の食中酒"},answerType:"drink",orderText:"貝や白身魚に、塩気を思わせる輪郭と高い酸がある白を。果実の甘い香りより、引き締まった味とほろ苦い余韻がほしいです。",prompt:"品種と州の関係まで覚えられる提案なら？",tags:["marche","verdicchio","castelli_di_jesi"],choices:[
+    ["ヴェルディッキオ・デイ・カステッリ・ディ・イエージ／ヴェルディッキオ／マルケ州",100,"品種、呼称、州が正しくつながり、味の希望にも合います。"],["ソアーヴェ／ガルガーネガ主体／ヴェネト州",86,"ほろ苦さは合いますが、酸の輪郭がやや柔らかです。"],["ガヴィ／コルテーゼ／ピエモンテ州",82,"高い酸は合うものの、求める塩味と余韻では次点です。"],["フィアーノ・ディ・アヴェッリーノ／フィアーノ／カンパニア州",70,"魚介に合いますが、より丸みとナッツの香りが出ます。"],
+  ],explanation:"ヴェルディッキオは品種名であり、同品種を軸にした代表呼称の一つがマルケ州のカステッリ・ディ・イエージです。"}),
+  singleOrder({id:"order_056",difficulty:"intermediate",stageType:"drink",learningFocus:"wine_denomination",knowledge:{category:"白ワイン",region:"シチリア州",denomination:"エトナ・ビアンコ",grapes:["カッリカンテ主体"],style:["高い酸","火山性土壌を思わせる硬質さ","柑橘とハーブ"],role:"魚介料理の食中酒"},answerType:"drink",orderText:"火山の土地を感じるような、硬質で酸の伸びる白を飲みたいです。熟した南国果実より、柑橘やハーブの涼しい印象があるものを。",prompt:"呼称・主要品種・州をそろえて提案するなら？",tags:["sicilia","etna_bianco","carricante"],choices:[
+    ["エトナ・ビアンコ／カッリカンテ主体／シチリア州",100,"高地の酸と硬質な輪郭が希望に合い、三つの知識も正しくつながります。"],["フィアーノ・ディ・アヴェッリーノ／フィアーノ／カンパニア州",72,"南部の白でも、より丸みとナッツ香があります。"],["ヴェルメンティーノ・ディ・ガッルーラ／ヴェルメンティーノ／サルデーニャ州",82,"塩味とハーブは合いますが、火山由来の硬質さとは異なります。"],["ソアーヴェ／ガルガーネガ主体／ヴェネト州",64,"穏やかな辛口で、求める強い酸と土地の緊張感に届きません。"],
+  ],explanation:"エトナ・ビアンコはシチリア州エトナの呼称で、カッリカンテを主要品種とする白です。"}),
+  singleOrder({id:"order_057",difficulty:"intermediate",stageType:"drink",learningFocus:"wine_denomination",knowledge:{category:"白ワイン",region:"カンパニア州",denomination:"フィアーノ・ディ・アヴェッリーノ",grapes:["フィアーノ主体"],style:["豊かな酸","白い果実","花とヘーゼルナッツを思わせる香り"],role:"魚・鶏料理の食中酒"},answerType:"drink",orderText:"魚だけでなく鶏料理にも合わせられる、少し厚みのある辛口白がほしいです。酸があり、花や白い果実に加えてナッツのような香りも感じたいです。",prompt:"呼称と品種を区別して選ぶなら？",tags:["campania","fiano_di_avellino","fiano"],choices:[
+    ["フィアーノ・ディ・アヴェッリーノ／フィアーノ主体／カンパニア州",100,"酸、厚み、花とナッツの香りが希望に合います。"],["ガヴィ／コルテーゼ／ピエモンテ州",70,"酸はあるものの、より軽く直線的です。"],["ソアーヴェ／ガルガーネガ主体／ヴェネト州",78,"穏やかで食事に合いますが、求める厚みは控えめです。"],["モスカート・ダスティ／モスカート・ビアンコ／ピエモンテ州",35,"花の香りはあっても甘口微発泡で食中の辛口ではありません。"],
+  ],explanation:"フィアーノは品種名、フィアーノ・ディ・アヴェッリーノはカンパニア州イルピニアの呼称です。"}),
+  singleOrder({id:"order_058",difficulty:"beginner",stageType:"drink",learningFocus:"wine_denomination",knowledge:{category:"白ワイン",region:"ピエモンテ州",denomination:"ガヴィ",grapes:["コルテーゼ"],style:["辛口","高い酸","柑橘と白い花"],role:"前菜・魚料理の食中酒"},answerType:"drink",orderText:"食事の始まりから白身魚まで通せる、すっきりした辛口白を。香りは白い花や柑橘くらいで、樽の重さは要りません。",prompt:"呼称・品種・州の組み合わせで選ぶなら？",tags:["piemonte","gavi","cortese"],choices:[
+    ["ガヴィ／コルテーゼ／ピエモンテ州",100,"直線的な酸と控えめな香りが食事の流れに合います。"],["ソアーヴェ／ガルガーネガ主体／ヴェネト州",86,"同様に自然ですが、より丸みとほろ苦さがあります。"],["フィアーノ・ディ・アヴェッリーノ／フィアーノ／カンパニア州",65,"食中に合っても、希望より厚みと香りがあります。"],["モスカート・ダスティ／モスカート・ビアンコ／ピエモンテ州",30,"州は同じでも、甘口で芳香性が高く役割が異なります。"],
+  ],explanation:"ガヴィはピエモンテ州の呼称で、コルテーゼから造られます。同じ州のモスカートとは品種も役割も異なります。"}),
+  singleOrder({id:"order_059",difficulty:"beginner",stageType:"drink",learningFocus:"grape_and_region",knowledge:{category:"赤ワイン",region:"アブルッツォ州",denomination:"モンテプルチアーノ・ダブルッツォ",grapes:["モンテプルチアーノ"],style:["濃い色","熟した黒い果実","ほどよい酸とタンニン"],role:"肉料理の食中酒"},answerType:"drink",orderText:"煮込んだ豚肉に、色が濃くて果実味のある赤を合わせたいです。極端に渋くはなく、普段の食卓で親しみやすいものを。",prompt:"地名と品種名の違いに注意して提案するなら？",tags:["abruzzo","montepulciano_d_abruzzo","montepulciano"],choices:[
+    ["モンテプルチアーノ・ダブルッツォ／モンテプルチアーノ／アブルッツォ州",100,"濃い果実味と親しみやすい骨格が料理に合います。"],["ヴィーノ・ノービレ・ディ・モンテプルチアーノ／サンジョヴェーゼ主体／トスカーナ州",76,"名前は似ていますが、町の名を持つ別の呼称・品種構成です。"],["バローロ／ネッビオーロ／ピエモンテ州",50,"肉に合っても、渋みと熟成の厳格さが強すぎます。"],["ヴァルポリチェッラ／コルヴィーナなど／ヴェネト州",72,"親しみやすい赤ですが、色と黒い果実の厚みは控えめです。"],
+  ],explanation:"モンテプルチアーノ・ダブルッツォではモンテプルチアーノが品種。トスカーナの町モンテプルチアーノで造るヴィーノ・ノービレは主にサンジョヴェーゼです。"}),
+  singleOrder({id:"order_060",difficulty:"intermediate",stageType:"drink",learningFocus:"grape_and_region",knowledge:{category:"白ワイン",region:"サルデーニャ州",denomination:"ヴェルメンティーノ・ディ・ガッルーラ",grapes:["ヴェルメンティーノ"],style:["辛口","柑橘とハーブ","塩味を思わせる余韻"],role:"魚介料理の食中酒"},answerType:"drink",orderText:"魚介のグリルに、海を思わせる塩気とハーブの香りがある白を合わせたいです。軽いだけではなく、少し骨格もある辛口がいいです。",prompt:"品種と代表的な州・呼称を結びつけるなら？",tags:["sardegna","vermentino_di_gallura","vermentino"],choices:[
+    ["ヴェルメンティーノ・ディ・ガッルーラ／ヴェルメンティーノ／サルデーニャ州",100,"塩味、ハーブ、骨格が魚介のグリルに合います。"],["リグーリアのヴェルメンティーノ／ヴェルメンティーノ／リグーリア州",86,"同品種で海に合いますが、より軽快な方向になりやすい提案です。"],["ガヴィ／コルテーゼ／ピエモンテ州",70,"酸は合いますが、海とハーブの印象が弱まります。"],["エトナ・ビアンコ／カッリカンテ主体／シチリア州",80,"塩味と骨格は合うものの、より硬質で火山的な輪郭です。"],
+  ],explanation:"ヴェルメンティーノは複数州で栽培されます。サルデーニャ州の代表呼称の一つがヴェルメンティーノ・ディ・ガッルーラです。"}),
 ];
