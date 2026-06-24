@@ -19,6 +19,18 @@ const STAGE_ICON: Record<string, IconName> = {
   wrong: "repeat",
 };
 
+const STAGE_IMAGE: Record<string, string> = {
+  beginner: "/images/stages/beginner.webp",
+  intermediate: "/images/stages/intermediate.webp",
+  dish_style: "/images/stages/dish-style.webp",
+  drink: "/images/stages/drink.webp",
+  pairing: "/images/stages/pairing.webp",
+  area: "/images/stages/area.webp",
+  region: "/images/stages/region.webp",
+  all: "/images/stages/intermediate.webp",
+  wrong: "/images/stages/dish-style.webp",
+};
+
 export default function StagesPage() {
   const { state, hydrated } = useProgress();
   const allIds = ORDERS.map((order) => order.id);
@@ -180,19 +192,33 @@ function StageCard({
 }) {
   const content = (
     <>
-      <div className="flex items-start justify-between gap-4">
+      {!disabled && STAGE_IMAGE[stage.id] && (
+        <div className={`pointer-events-none absolute inset-y-0 right-0 ${large ? "w-[52%]" : "w-[48%]"}`}>
+          <Image
+            src={STAGE_IMAGE[stage.id]}
+            alt=""
+            fill
+            sizes={large ? "(max-width: 768px) 52vw, 300px" : "(max-width: 640px) 48vw, 220px"}
+            className="object-cover object-right opacity-92 transition duration-500 group-hover:scale-[1.025] group-hover:opacity-100"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-cream via-cream/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-cream/25 via-transparent to-cream/10" />
+        </div>
+      )}
+
+      <div className="relative z-10 flex items-start justify-between gap-4">
         <span
           className={`flex shrink-0 items-center justify-center rounded-full border border-ink/10 bg-paper text-basil ${large ? "h-13 w-13" : "h-11 w-11"}`}
         >
           <Icon name={icon} className={large ? "h-6 w-6" : "h-5 w-5"} />
         </span>
-        <span className="font-display text-xs text-ink-soft">
+        <span className="rounded-full bg-cream/72 px-2 py-1 font-display text-xs text-ink-soft backdrop-blur-sm">
           {stage.id === "wrong"
             ? `${progress.count}問`
             : `${progress.cleared}/${progress.count}`}
         </span>
       </div>
-      <div className={large ? "mt-7" : "mt-5"}>
+      <div className={`relative z-10 ${large ? "mt-7 max-w-[54%]" : "mt-5 max-w-[58%]"}`}>
         <h3 className={`${large ? "text-xl" : "text-base"} font-bold text-ink`}>
           {stage.label}
         </h3>
@@ -206,7 +232,7 @@ function StageCard({
         )}
       </div>
       {stage.id !== "wrong" && (
-        <div className="mt-5 h-px overflow-hidden bg-line">
+        <div className="relative z-10 mt-5 h-px overflow-hidden bg-line">
           <div
             className="h-full bg-basil transition-all"
             style={{ width: `${progress.pct}%` }}
