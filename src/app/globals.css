@@ -88,6 +88,44 @@ body {
     opacity: 1;
   }
 }
+
+@keyframes service-reveal-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes service-cloche-open {
+  0%, 18% { transform: translateY(0) rotate(0); }
+  70%, 100% { transform: translate(-14px, -34px) rotate(-8deg); }
+}
+
+@keyframes service-glow-open {
+  0%, 25% { opacity: 0; transform: translate(-50%, -50%) scale(0.35); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(9); }
+}
+
+@keyframes service-copy-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.service-reveal {
+  animation: service-reveal-in 180ms ease-out both;
+}
+
+.service-cloche-lid {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: service-cloche-open 760ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
+}
+
+.service-reveal-glow {
+  animation: service-glow-open 720ms cubic-bezier(0.22, 1, 0.36, 1) 160ms both;
+}
+
+.service-reveal-copy {
+  animation: service-copy-in 360ms ease-out 260ms both;
+}
 .animate-fade {
   animation: fade 0.6s ease both;
 }
@@ -163,5 +201,12 @@ body {
   .choice-flip-inner,
   .order-card-flip-inner {
     transition: none !important;
+  }
+
+  .service-reveal,
+  .service-cloche-lid,
+  .service-reveal-glow,
+  .service-reveal-copy {
+    animation: none !important;
   }
 }

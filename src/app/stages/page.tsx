@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, type MouseEvent } from "react";
 import { Icon, type IconName } from "@/components/Icon";
 import { ORDERS } from "@/data/orders";
 import { isCleared, useProgress, wrongIds } from "@/lib/progress";
@@ -32,6 +34,8 @@ const STAGE_IMAGE: Record<string, string> = {
 };
 
 export default function StagesPage() {
+  const router = useRouter();
+  const [departingStage, setDepartingStage] = useState<string | null>(null);
   const { state, hydrated } = useProgress();
   const allIds = ORDERS.map((order) => order.id);
   const wrongCount = hydrated ? wrongIds(state, allIds).length : 0;
@@ -52,6 +56,34 @@ export default function StagesPage() {
   const difficulties = STAGES.filter((stage) => stage.group === "difficulty");
   const themes = STAGES.filter((stage) => stage.group === "cut");
   const specials = STAGES.filter((stage) => stage.group === "special");
+
+  function startStage(event: MouseEvent<HTMLAnchorElement>, stageId: string) {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    if (departingStage) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reducedMotion) {
+      router.push(`/play?stage=${stageId}`);
+      return;
+    }
+
+    setDepartingStage(stageId);
+    window.setTimeout(() => {
+      router.push(`/play?stage=${stageId}`);
+    }, 920);
+  }
 
   return (
     <main className="min-h-dvh overflow-hidden bg-paper">
@@ -114,6 +146,7 @@ export default function StagesPage() {
               icon={STAGE_ICON[stage.id]}
               progress={getProgress(stage.id)}
               large
+              onStart={startStage}
             />
           ))}
         </div>
@@ -127,6 +160,7 @@ export default function StagesPage() {
                 stage={stage}
                 icon={STAGE_ICON[stage.id]}
                 progress={getProgress(stage.id)}
+                onStart={startStage}
               />
             ))}
           </div>
@@ -145,12 +179,18 @@ export default function StagesPage() {
                   progress={progress}
                   large
                   disabled={stage.id === "wrong" && progress.count === 0}
+                  onStart={startStage}
                 />
               );
             })}
           </div>
         </div>
       </div>
+      {departingStage && (
+        <ServiceReveal
+          label={STAGES.find((stage) => stage.id === departingStage)?.label}
+        />
+      )}
     </main>
   );
 }
@@ -183,12 +223,14 @@ function StageCard({
   progress,
   large = false,
   disabled = false,
+  onStart,
 }: {
   stage: (typeof STAGES)[number];
   icon: IconName;
   progress: { count: number; cleared: number; pct: number };
   large?: boolean;
   disabled?: boolean;
+  onStart: (event: MouseEvent<HTMLAnchorElement>, stageId: string) => void;
 }) {
   const content = (
     <>
@@ -199,7 +241,7 @@ function StageCard({
             alt=""
             fill
             sizes={large ? "(max-width: 768px) 52vw, 300px" : "(max-width: 640px) 48vw, 220px"}
-            className="object-cover object-right opacity-92 transition duration-500 group-hover:scale-[1.025] group-hover:opacity-100"
+            className="object-cover object-right opacity-92 transition-opacity duration-300 group-hover:opacity-100"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-cream via-cream/30 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-cream/25 via-transparent to-cream/10" />
@@ -258,8 +300,54 @@ function StageCard({
 
   if (disabled) return <div className={classes}>{content}</div>;
   return (
-    <Link href={`/play?stage=${stage.id}`} className={classes}>
+    <Link
+      href={`/play?stage=${stage.id}`}
+      onClick={(event) => onStart(event, stage.id)}
+      className={classes}
+    >
       {content}
     </Link>
+  );
+}
+
+function ServiceReveal({ label }: { label?: string }) {
+  return (
+    <div
+      className="service-reveal fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-paper"
+      aria-label={`${label ?? "注文"}を準備しています`}
+      role="status"
+    >
+      <div className="service-reveal-glow absolute left-1/2 top-1/2 aspect-square w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(179,144,47,0.3)_0%,rgba(250,248,243,0)_70%)]" />
+      <div className="relative z-10 flex -translate-y-3 flex-col items-center text-basil">
+        <div className="service-cloche relative h-32 w-52">
+          <svg
+            viewBox="0 0 208 128"
+            fill="none"
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full overflow-visible"
+          >
+            <g className="service-cloche-lid">
+              <path
+                d="M35 91c3-42 33-68 69-68s66 26 69 68H35Z"
+                fill="#faf8f3"
+                stroke="currentColor"
+                strokeWidth="3"
+              />
+              <path d="M91 23c0-8 5-13 13-13s13 5 13 13" stroke="currentColor" strokeWidth="3" />
+            </g>
+            <g className="service-cloche-tray">
+              <path d="M22 94h164" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              <path d="M12 105h184" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            </g>
+          </svg>
+        </div>
+        <p className="service-reveal-copy mt-4 font-display text-sm italic tracking-[0.14em] text-pomodoro">
+          Preparando il servizio
+        </p>
+        <p className="service-reveal-copy mt-1 text-xs font-bold tracking-wide text-ink-soft">
+          {label ?? "注文"} · 10問
+        </p>
+      </div>
+    </div>
   );
 }
