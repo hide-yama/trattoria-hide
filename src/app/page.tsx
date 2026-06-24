@@ -131,8 +131,8 @@ export default function Home() {
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-3">
-            <SoonCard icon="study-book" title="学習部屋" sub="Studio" />
-            <CompactLink href="/answers" icon="collection" title="答え集" sub="Risposte" />
+            <CompactLink href="/reading" icon="study-book" title="読み物の部屋" sub="Lettura" desc="注文から提案を考える" />
+            <CompactLink href="/answers" icon="collection" title="答え集" sub="Risposte" desc="全問題を一覧で確認" />
           </div>
         </section>
       </div>
@@ -191,41 +191,18 @@ function MenuCard({
   );
 }
 
-function SoonCard({
-  icon,
-  title,
-  sub,
-}: {
-  icon: IconName;
-  title: string;
-  sub: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-dashed border-line bg-paper/60 px-4 py-3 text-ink-soft">
-      <Icon name={icon} className="h-5 w-5 shrink-0" />
-      <div className="min-w-0">
-        <div className="flex items-baseline gap-2">
-          <span className="text-sm font-semibold text-ink/80">{title}</span>
-          <span className="hidden font-display text-[10px] italic sm:inline">
-            {sub}
-          </span>
-        </div>
-        <span className="text-[10px] tracking-wide">近日公開</span>
-      </div>
-    </div>
-  );
-}
-
 function CompactLink({
   href,
   icon,
   title,
   sub,
+  desc,
 }: {
   href: string;
   icon: IconName;
   title: string;
   sub: string;
+  desc: string;
 }) {
   return (
     <Link
@@ -240,7 +217,7 @@ function CompactLink({
             {sub}
           </span>
         </div>
-        <span className="text-[10px] tracking-wide text-ink-soft">全問題を一覧で確認</span>
+        <span className="text-[10px] tracking-wide text-ink-soft">{desc}</span>
       </div>
       <Icon name="arrow-right" className="h-4 w-4 text-ink-soft transition group-hover:translate-x-0.5" />
     </Link>

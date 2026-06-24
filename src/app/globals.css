@@ -43,6 +43,44 @@ body {
   letter-spacing: 0;
 }
 
+.reading-article > section + section,
+.reading-article > aside + section,
+.reading-article > section + aside {
+  margin-top: 4rem;
+}
+
+.reading-article section > h2 {
+  margin-top: 0.55rem;
+  font-size: 1.55rem;
+  line-height: 1.45;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+}
+
+.reading-article section > p:not(.reading-eyebrow) {
+  margin-top: 1.2rem;
+  font-size: 0.925rem;
+  line-height: 2;
+  color: var(--color-ink-soft);
+}
+
+.reading-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-pomodoro);
+}
+
+.reading-eyebrow span {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
 /* 控えめなアクセント罫（旧 tricolore 置き換え：細いグリーンの線） */
 .tricolore {
   background: linear-gradient(
