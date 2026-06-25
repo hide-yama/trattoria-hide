@@ -170,7 +170,10 @@ export default function BarberaArticlePage() {
             <p>
               DOCGは産地と生産規定に基づく呼称です。しかし、お客様の好みや料理に対する「絶対的な上位」を示すものではありません。次は、格付けを品質ランキングとして読んでよいのかを考えます。
             </p>
-            <span className="mt-5 inline-block rounded-full bg-paper-2 px-3 py-1.5 text-[10px] font-bold text-ink-soft">次の記事を準備中</span>
+            <Link href="/reading/docg-best-choice" className="mt-5 inline-flex items-center gap-2 rounded-full bg-basil px-4 py-2.5 text-xs font-bold text-cream transition hover:bg-pomodoro">
+              次の記事へ
+              <Icon name="arrow-right" className="h-4 w-4" />
+            </Link>
           </section>
 
           <nav className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-ink/10 pt-8">
